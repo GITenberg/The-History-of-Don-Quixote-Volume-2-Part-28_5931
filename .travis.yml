@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: K9FMUucPtKDozbbLdDKIHUOAwV7cT2X0nk/K1oQVQ1JfezvtURgAwmiDOmUVeV8/0oZiWfUffd8rLRoIGKDuld1xhLAAqBzVi0iWG5ACbfnjfXEv8Kj9ciLKyBOhx3J+huZoCKKY6rhn9iYWB13PPe95zKpY4ATUoDv4OhNLclLvKuGl5oBCrdxxpMMBdsXGxX/QMBUtP24lQPmsZ+Cz/jSntn7ME5AQSi6gtUvnubrfQJUvrW3/OCLuUUY/EBrUrDG5IgmkHaIrcx9lN7DMZM4A/nhmXnpnIGBPZjeUW74b/l+aH9k3PlfKqcabgzRNieBGVZy9KmuVWz6wQtuE8ULaXb2OGaUncnCF0scw2TRY4gsWHN4WOWorrzMUTsLttgIr3zlMTj2Sx8X8oea2WK/Oe01jUKbx2tyBPKqpfvLMs0Oku6Gq7qSha5kw7FkmbcbsCQXjbfp9PjBs0IN0kr8/9RaP29NUp316qJnCBYs3OXsTXVZcOpf3j8MPcOaxzXmIS4FfLzZ1RUGQc6VuxbSzJocUAPJ+3qChvM9F1Z1yeH2kZ3T33OJ38y13twDemp73LUT9IWETXEMGXPMoS1Gz3SwGP9QLdrvEuL7xdMzsIU0b08ybFC7e6AWE9PV0JpvsMOwq3nkDtjR8jB0RFAKEabAwe3Hz0Vx+EnFr8W4=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-History-of-Don-Quixote-Volume-2-Part-28_5931
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
